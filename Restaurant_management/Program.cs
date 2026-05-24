@@ -54,6 +54,7 @@ while (true)
             int dishId = int.Parse(Console.ReadLine());
             if (dishId == 0) {
                 restaurant.TakeOrder(orderMy);
+                orderMy.PrintCheck();
                 break;
             }
             Dish dish = restaurant.FindOfDish(dishId);
