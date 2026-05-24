@@ -29,16 +29,9 @@ namespace Restaurant_management
 
         public async Task StartCookingAsync(Order order)
         {
-            currentOrdersCount++;
-            Console.WriteLine($"Шеф {name} начал готовить заказ #{order.id} (текущих заказов: {currentOrdersCount}/{MaxConcurrentOrders})");
-            
-            await order.SimulateCookingAsync();
-            
-            currentOrdersCount--;
-            ordersHandled++;
-            Console.WriteLine($"Шеф {name} завершил заказ #{order.id} (текущих заказов: {currentOrdersCount}/{MaxConcurrentOrders})");
-            
-            // После завершения заказа проверяем очередь
+            // Добавляем заказ в очередь и запускаем обработку
+            pendingOrders.Enqueue(order);
+            Console.WriteLine($"Заказ #{order.id} добавлен к шефу {name} (в очереди: {pendingOrders.Count})");
             await ProcessQueueAsync();
         }
 
@@ -54,20 +47,28 @@ namespace Restaurant_management
 
         private async Task ProcessQueueAsync()
         {
-            // Если уже идет обработка или нет места, выходим
-            if (isCooking || currentOrdersCount >= MaxConcurrentOrders)
-                return;
-            
-            isCooking = true;
-            
-            // Запускаем заказы из очереди пока есть место
+            // Запускаем заказы из очереди пока есть место и заказы в очереди
             while (pendingOrders.Count > 0 && currentOrdersCount < MaxConcurrentOrders)
             {
                 var nextOrder = pendingOrders.Dequeue();
-                await StartCookingAsync(nextOrder);
+                // Запускаем задачу приготовления
+                _ = CookOrderAsync(nextOrder);
             }
+        }
+
+        private async Task CookOrderAsync(Order order)
+        {
+            currentOrdersCount++;
+            Console.WriteLine($"Шеф {name} начал готовить заказ #{order.id} (текущих заказов: {currentOrdersCount}/{MaxConcurrentOrders})");
             
-            isCooking = false;
+            await order.SimulateCookingAsync();
+            
+            currentOrdersCount--;
+            ordersHandled++;
+            Console.WriteLine($"Шеф {name} завершил заказ #{order.id} (текущих заказов: {currentOrdersCount}/{MaxConcurrentOrders})");
+            
+            // После завершения заказа проверяем очередь
+            await ProcessQueueAsync();
         }
     }
 }
