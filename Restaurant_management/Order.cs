@@ -19,19 +19,29 @@ namespace Restaurant_management
 
         public async Task SimulateCookingAsync()
         {
-            Console.WriteLine($"\nЗаказ #{id}: Статус - {Status}");
+            Console.WriteLine($"\nЗаказ #{id}: Начало приготовления\n");
+            
+            var tasks = dishes.Select(dish => SimulateDishCookingAsync(dish));
+            await Task.WhenAll(tasks);
+            
+            Console.WriteLine($"\nЗаказ #{id}: Все блюда готовы и вручены!\n");
+        }
+
+        private async Task SimulateDishCookingAsync(Dish dish)
+        {
+            Console.WriteLine($"[{dish.name}] Статус - {dish.Status}");
             
             await Task.Delay(1000);
-            Status = OrderStatus.Готовится;
-            Console.WriteLine($"Заказ #{id}: Статус - {Status}");
+            dish.Status = OrderStatus.Готовится;
+            Console.WriteLine($"[{dish.name}] Статус - {dish.Status}");
             
             await Task.Delay(2000);
-            Status = OrderStatus.Готово;
-            Console.WriteLine($"Заказ #{id}: Статус - {Status}");
+            dish.Status = OrderStatus.Готово;
+            Console.WriteLine($"[{dish.name}] Статус - {dish.Status}");
             
             await Task.Delay(1000);
-            Status = OrderStatus.Вручено;
-            Console.WriteLine($"Заказ #{id}: Статус - {Status}\n");
+            dish.Status = OrderStatus.Вручено;
+            Console.WriteLine($"[{dish.name}] Статус - {dish.Status}\n");
         }
 
         public void PrintCheck()

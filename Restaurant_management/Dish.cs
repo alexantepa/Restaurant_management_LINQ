@@ -10,6 +10,7 @@ namespace Restaurant_management
         public string name;
         public int price;
         public CuisineType cuisine;
+        public OrderStatus Status { get; set; } = OrderStatus.Принято;
 
         public Dish(int id, string name, int price, CuisineType cuisine)
         {
