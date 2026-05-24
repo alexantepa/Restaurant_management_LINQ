@@ -44,38 +44,24 @@ namespace Restaurant_management
                 dish.Status = OrderStatus.Принято;
             }
 
-            // Распределяем блюда по поварам
-            foreach (Dish dish in order.dishes)
-            {
-                Chef chefBuff = chefs
-                    .Where(c => c.typeOfCuisine == dish.cuisine && c.CanAcceptOrder())
-                    .OrderBy(c => c.currentOrdersCount)
-                    .FirstOrDefault();
-
-                if (chefBuff != null)
-                {
-                    Console.WriteLine($"Блюдо {dish.name} будет готовить шеф {chefBuff.name}");
-                }
-                else
-                {
-                    Console.WriteLine($"Блюдо {dish.name} ожидает освобождения шефа (статус: {dish.Status})");
-                }
-            }
-
-            // Находим шефа для всего заказа и запускаем приготовление
+            // Находим шефа для всего заказа
             Chef assignedChef = FindChefForOrder(order);
+            
             if (assignedChef != null)
             {
-                _ = assignedChef.StartCookingAsync(order);
+                // Если шеф может принять заказ, начинаем готовить
+                Console.WriteLine($"Заказ #{order.id} принят шефом {assignedChef.name}");
+                await assignedChef.StartCookingAsync(order);
             }
             else
             {
-                // Если нет свободного шефа, добавляем заказ в очередь ожидания
+                // Если нет свободного шефа, добавляем заказ в очередь ожидания к подходящему шефу
                 var firstDish = order.dishes[0];
                 var suitableChef = chefs.FirstOrDefault(c => c.typeOfCuisine == firstDish.cuisine);
                 if (suitableChef != null)
                 {
-                    suitableChef.AddToPendingQueue(order);
+                    Console.WriteLine($"Заказ #{order.id} добавлен в очередь к шефу {suitableChef.name} (ожидает начала приготовления)");
+                    await suitableChef.AddOrderAsync(order);
                 }
                 else
                 {

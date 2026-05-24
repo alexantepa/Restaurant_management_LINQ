@@ -27,8 +27,11 @@ namespace Restaurant_management
         {
             Console.WriteLine($"\nЗаказ #{id}: Начало приготовления\n");
             
-            var tasks = dishes.Select(dish => SimulateDishCookingAsync(dish));
-            await Task.WhenAll(tasks);
+            // Готовим блюда последовательно, а не параллельно
+            foreach (var dish in dishes)
+            {
+                await SimulateDishCookingAsync(dish);
+            }
             
             Console.WriteLine($"\nЗаказ #{id}: Все блюда готовы и вручены!\n");
         }

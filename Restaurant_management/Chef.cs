@@ -13,6 +13,7 @@ namespace Restaurant_management
         public int currentOrdersCount = 0;
         public const int MaxConcurrentOrders = 3;
         private readonly Queue<Order> pendingOrders = new Queue<Order>();
+        private bool isCooking = false;
 
         public Chef(string name, int ordersHandled, CuisineType typeOfCuisine)
         {
@@ -37,18 +38,36 @@ namespace Restaurant_management
             ordersHandled++;
             Console.WriteLine($"Шеф {name} завершил заказ #{order.id} (текущих заказов: {currentOrdersCount}/{MaxConcurrentOrders})");
             
-            // Если есть ожидающие заказы, начинаем готовить следующий
-            if (pendingOrders.Count > 0)
-            {
-                var nextOrder = pendingOrders.Dequeue();
-                _ = StartCookingAsync(nextOrder);
-            }
+            // После завершения заказа проверяем очередь
+            await ProcessQueueAsync();
         }
 
-        public void AddToPendingQueue(Order order)
+        public async Task AddOrderAsync(Order order)
         {
+            // Добавляем заказ в очередь
             pendingOrders.Enqueue(order);
             Console.WriteLine($"Заказ #{order.id} добавлен в очередь к шефу {name} (в очереди: {pendingOrders.Count})");
+            
+            // Пытаемся обработать очередь
+            await ProcessQueueAsync();
+        }
+
+        private async Task ProcessQueueAsync()
+        {
+            // Если уже идет обработка или нет места, выходим
+            if (isCooking || currentOrdersCount >= MaxConcurrentOrders)
+                return;
+            
+            isCooking = true;
+            
+            // Запускаем заказы из очереди пока есть место
+            while (pendingOrders.Count > 0 && currentOrdersCount < MaxConcurrentOrders)
+            {
+                var nextOrder = pendingOrders.Dequeue();
+                await StartCookingAsync(nextOrder);
+            }
+            
+            isCooking = false;
         }
     }
 }
