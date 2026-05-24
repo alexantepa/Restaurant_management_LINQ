@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Restaurant_management
 {
@@ -12,8 +13,26 @@ namespace Restaurant_management
         public int waiterID { get; set; }
         public List<Dish> dishes = new List<Dish>();
         public decimal totalPrice => dishes.Sum(d => d.price);
+        public OrderStatus Status { get; set; } = OrderStatus.Принято;
 
         public void AddDish(Dish dish) => dishes.Add(dish);
+
+        public async Task SimulateCookingAsync()
+        {
+            Console.WriteLine($"\nЗаказ #{id}: Статус - {Status}");
+            
+            await Task.Delay(1000);
+            Status = OrderStatus.Готовится;
+            Console.WriteLine($"Заказ #{id}: Статус - {Status}");
+            
+            await Task.Delay(2000);
+            Status = OrderStatus.Готово;
+            Console.WriteLine($"Заказ #{id}: Статус - {Status}");
+            
+            await Task.Delay(1000);
+            Status = OrderStatus.Вручено;
+            Console.WriteLine($"Заказ #{id}: Статус - {Status}\n");
+        }
 
         public void PrintCheck()
         {
