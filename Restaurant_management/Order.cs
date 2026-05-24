@@ -7,6 +7,7 @@ namespace Restaurant_management
 {
     public class Order
     {
+        private static int nextId = 1;
         public int id { get; set; }
         public int tableNumber { get; set; }
         public int customerID { get; set; }
@@ -14,6 +15,11 @@ namespace Restaurant_management
         public List<Dish> dishes = new List<Dish>();
         public decimal totalPrice => dishes.Sum(d => d.price);
         public OrderStatus Status { get; set; } = OrderStatus.Принято;
+
+        public Order()
+        {
+            id = nextId++;
+        }
 
         public void AddDish(Dish dish) => dishes.Add(dish);
 
