@@ -57,9 +57,8 @@ async Task RunRestaurantAsync()
                 }
                 int dishId = int.Parse(Console.ReadLine());
                 if (dishId == 0) {
-                    restaurant.TakeOrder(orderMy);
+                    await restaurant.TakeOrderAsync(orderMy);
                     orderMy.PrintCheck();
-                    await orderMy.SimulateCookingAsync();
                     break;
                 }
                 Dish dish = restaurant.FindOfDish(dishId);
